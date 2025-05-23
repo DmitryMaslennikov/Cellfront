@@ -1,0 +1,671 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap');
+/* ------------------------------------------------------------------
+   styles.css – responsive scaling using rem
+   Base font-size: 100% (1rem = browser default ~16px)
+------------------------------------------------------------------*/
+:root {
+  font-size: 100%;           /* 1rem = base font size */
+  --clr-text-light: #ffffff;
+  --clr-menu-grad-1: rgba(20,20,30,0.7);
+  --clr-menu-grad-2: rgba(60,20,60,0.7);
+  --clr-widget-bg:   rgba(255,255,255,0.05);
+  --glass-bg:        rgba(255,255,255,0.25);
+  --glass-blur:      blur(0.625rem);
+  --widget-gap:      0.8rem;
+  --ui-font-size:    1.2rem;   /* scalable unit */
+}
+
+/* Reset & Base Typography */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Roboto', sans-serif;
+  font-size: var(--ui-font-size)*2;
+  color: var(--clr-text-light);
+  background:
+    linear-gradient(135deg, var(--clr-menu-grad-1), var(--clr-menu-grad-2)),
+    url('bg_conway.jpg') center/cover no-repeat fixed;
+}
+.stat-line {
+  display: inline-block;
+  white-space: nowrap;
+  font-family: monospace;
+}
+.stat-label {
+  display: inline-block;
+  text-align: left;     
+  margin-right: -1.0ch;
+
+}
+.stat-value {
+  display: inline-block;
+  width: 4ch;            
+  text-align: right;     
+  margin-right: 0.0ch;
+}
+.stat-value-dec {
+  display: inline-block;
+  width: 7ch;            
+  text-align: right;
+  margin-right: 0.0ch;
+}
+/* Form Controls – Montserrat uniform text */
+.range-group label,
+.grid-size-options label,
+.option,
+#modeButtons button,
+.speed-controls button,
+#soundToggle + label,
+#menuButton,
+#difficultyValue,
+#breathValue,
+#reinforcementsValue,
+  .stat,
+  .sub {
+    /* оставляем прежний размер, но меняем шрифт на моноширинный */
+    font-family: 'Roboto Mono', monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: calc(var(--ui-font-size) * 1.2);
+
+  }
+
+  .material-icons {
+    font-family: 'Material Icons';  /* обязательно! */
+    font-size: calc(var(--ui-font-size) * 1.2);
+    line-height: 1;
+    vertical-align: middle;         /* выравнивание с текстом */
+  }
+/* Body state */
+body.in-game {
+  background: #000;
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Start Screen */
+#startScreen {
+  position: fixed;
+  /* отступы по краям экрана по 5% высоты/ширины */
+  top: 5vh;
+  bottom: 5vh;
+  left: 25vw;
+  right: 25vw;
+
+  /* без фиксированных width/height */
+  width: auto;
+  height: auto;
+  max-width: 90vw;
+  max-height: 90vh;
+
+  /* центрирование контента */
+  margin: auto;
+  padding: 2vw;
+  border-radius: 2vw;
+
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  text-align: center;
+  overflow-y: auto;
+
+  /* масштабирование шрифтов и элементов */
+  font-size: calc(0.75rem + 1vw);
+  box-shadow: 0 0.5rem 2rem rgba(0,0,0,0.3);
+}
+
+
+#startScreen h1 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 2.2em;
+  letter-spacing: 0.125em;
+  margin-bottom: 0.3em;
+  text-transform: uppercase;
+}
+
+/* Sliders */
+.range-group { margin: 2vh 0; }
+.range-group label { display: block; margin-bottom: 1vh; }
+input[type="range"].slider {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  height: 0.2em;       /* 6px/16 */
+  border-radius: 0.2em;
+  background: linear-gradient(
+    90deg,
+    var(--fill, #8e24aa) var(--progress, 50%),
+    rgba(255,255,255,0.15) 0
+  );
+  outline: none;
+  transition: background 0.2s;
+}
+input[type="range"].slider::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 1.2em;        /* 18px/16 */
+  height: 1.2em;
+  border-radius: 50%;
+  background: #fff;
+  border: 0.225em solid var(--fill, #8e24aa);
+  box-shadow: 0 0 0.5em var(--fill, #8e24aa);
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+input[type="range"].slider:active::-webkit-slider-thumb {
+  transform: scale(1.15);
+}
+input[type="range"].slider::-moz-range-thumb {
+  border-radius: 50%;
+  background: #fff;
+  width: 2em;
+  height: 2em;
+  border: 0.125em solid var(--fill, #8e24aa);}
+/* Grid size cards */
+.grid-size-options {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.0em;
+  margin: 0.5em 0;
+}
+.grid-size-options label {
+  position: relative;
+  cursor: pointer;
+}
+.grid-size-options input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  z-index: 2;
+}
+.option {
+  display: block;
+  padding: 2vh 1vw;
+  border-radius: 0.5em;
+  text-align: center;
+  background: var(--clr-widget-bg);
+  transition: transform 0.1s, box-shadow 0.2s;
+}
+.option small {
+  display: block;
+  font-size: 0.75em;
+  color: #ccc;
+}
+.grid-size-options input:checked + .option {
+  box-shadow: 0 0 0 0.1875em var(--clr-text-light);
+  transform: scale(1.1);
+}
+
+/* Mode Buttons */
+#modeButtons {
+  display: flex;
+  gap: 2vw;
+  margin-top: 2vh;
+}
+#modeButtons button {
+  flex: 1;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s;
+  padding: 1.5vh 1vw;
+  font-size: 1em;
+  border-radius: 0.5em;
+}
+#startBtn { background: #6a1b9a; }
+#startBtn:hover { background: #4a148c; }
+#resumeButton   { background: #00acc1; }
+#resumeButton:hover   { background: #00838f; }
+#howButton      { background: #ff9800; }
+#howButton:hover      { background: #fb8c00; }
+#modeButtons button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* Help Overlay */
+#helpOverlay[hidden] { display:none !important; }
+/* ——— размеры и прокрутка подсказки ——— */
+#helpOverlay{
+  position:fixed;
+  inset:0;                      /* заполняет весь вьюпорт */
+  background:rgba(0,0,0,.65);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:999;
+}
+
+.help-box{
+  max-width: 90vw;              /* влезет даже на телефоне */
+  max-height: 80vh;             /* и высотой не вылезет */
+  overflow-y: auto;             /* скроллим, если очень длинно */
+  padding:1.5rem 1.75rem;
+  background:rgba(30,30,40,.95);
+  border-radius:1rem;
+  box-shadow:0 6px 30px rgba(0,0,0,.45);
+  color:#fff;
+  font:400 0.95rem/1.45 'Montserrat',sans-serif;
+  word-break: break-word;       /* переносим «слишком долгие» части */
+  hyphens: auto;                /* мягкие пере­носы внутри слов */
+}
+
+.help-box h2{
+  margin-top:0;
+  font-weight:600;
+  text-align:center;
+}
+
+.help-box p{
+
+  /* «висячие» пули */
+  padding-left: 1.2em;          /* место под маркер */
+  text-indent: -0.9em;          /* маркер выступает влево */
+  margin: 0.5rem 0 0.5rem;
+  line-height: 1.45;
+}
+
+/* сама «коробка» уже отстилизована, меняем только список */
+.help-box ul{
+  margin: 1rem 0 1.5rem;
+  padding-left: 1.2em;      /* где будут кружочки */
+  list-style-type: disc;    /* стандартные пуллы */
+  line-height: 1.45;
+}
+
+.help-box ul li{
+  margin: 0 0 .45rem;       /* расстояние между пунктами */
+  text-indent: 0;           /* все строки ровно под кружком */
+}
+
+
+
+.help-box button{
+  padding:0.7em;
+  width:100%;
+  border:none;
+  border-radius:0.6em;
+  font-size:1.3em;                  /* наследует fluid-размер */
+  background:#6a1b9a;
+  color:#fff;
+  cursor:pointer;
+  transition:background .2s;
+}
+.help-box button:hover{background:#4a148c;}
+
+
+/* Game Screen */
+#gameScreen { display: none;   overflow: hidden; height: 100vh;}
+body.in-game #startScreen { display: none; }
+body.in-game #gameScreen { display: none;  height: 98%; overflow: hidden;}
+#fieldWrapper {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  box-sizing: border-box;
+  align-items: center;
+  padding: 1.0em;          /* extra breathing room */
+}
+/* Canvas без рамки */
+#gameCanvas {
+  background: #111;
+  border: none;                       /* убрали border */
+  box-shadow: 0 0 0.5rem rgba(0,0,0,0.5);
+  border-radius: 0.5rem;                /* можно оставить, на ваше усмотрение */
+  display: block;                     /* чтобы margin/padding отрабатывали корректно */
+  width: 100%; 
+  height: 98%;
+  box-sizing: border-box;            /* на всякий случай */
+}
+
+/* Sidebar & Widgets */
+#sidebar {
+  width: 19%;
+  /*min-width: 3.125rem;*/
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /*align-items: center;*/
+  gap: 1%;
+  
+  background: linear-gradient(180deg, #22203a, #1a162f);
+  padding: 0.5%;
+  box-shadow: -0.25rem 0 1rem rgba(0,0,0,0.5);
+}
+.widget {
+  background: var(--clr-widget-bg);
+  border-radius: 8%;
+  padding: 1%;
+  text-align: center;
+}
+.widget h2 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: calc(var(--ui-font-size) * 1.1);
+  margin-bottom: 0.2rem;
+}
+.stat {
+  font-family: 'Orbitron', monospace;
+  font-size: calc(var(--ui-font-size) * 0.9);
+  line-height: 1;
+  margin-bottom: 0.2rem;
+  text-align: left;
+
+}
+
+/* Speed Controls */
+.speed-controls {
+  display: flex;
+  justify-content: center;
+  
+  gap: 5%;                /* gap relative to container width */
+}
+.speed-controls button {
+  width: 2em;         /* 2 × inherited font-size */
+  height: 2em;
+  font-size: 100%;    /* match parent font-size */
+  border: none;
+  border-radius: 0.5em; /* proportional to font-size */
+  background: rgba(255,255,255,0.1);
+  color: var(--clr-text-light);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  
+}
+.speed-controls button.active,
+.speed-controls button:hover {
+  background: rgba(255,255,255,0.35);
+}
+/* Sound Toggle – custom switch */
+
+#soundToggle { position: absolute; opacity: 0;
+  font-size: calc(var(--ui-font-size) * 0.9);
+}
+/* универсальная «квадратная» кнопка-иконка */
+.icon-btn{
+  width:1.4em;               /* ≈38 px при базовом ui-font-size =1.2rem */
+  height:1.4em;
+  display:flex;              /* центрируем иконку */
+  justify-content:center;
+  align-items:center;
+  border:none;
+  border-radius:0.5em;
+  background:rgba(255,255,255,0.1);
+  color:var(--clr-text-light);
+  font-size:1.4em;           /* сама иконка чуть крупнее квадрата */
+  cursor:pointer;
+  transition:background .2s, transform .2s;
+}
+.icon-btn:hover{background:rgba(255,255,255,0.25); transform:translateY(-2px);}
+.icon-btn:active{transform:scale(0.95);}
+
+
+/* Меняем иконку только силами CSS: volume_up ⇄ volume_off */
+.sound-toggle + label i::before{content:"volume_up";}
+.sound-toggle:not(:checked) + label i::before{content:"volume_off";}
+
+
+.sound-widget{
+  display:flex;                 /* горизонтально */
+  align-items:center;
+  justify-content:center;
+  gap:0.5rem;        /* 0.8rem уже объявлен в :root */
+  background:var(--clr-widget-bg);
+  padding:0.5em 0.5em;              /* вертикальный «воздух» */
+}
+
+#difficultyDisplay {
+  font-family: 'Orbitron', monospace;
+  font-size: calc(var(--ui-font-size) * 1);
+}
+
+/* == Общие правила для надёжного расчёта размеров == */
+*,
+*::before,
+*::after {
+  box-sizing: border-box !important;
+}
+
+/* == Compass Widget: квадратный блок с адаптивными размерами == */
+#compassBox {
+  background: var(--clr-widget-bg);
+
+  /* Размер — адаптивная ширина в пределах от 4rem до 10rem */
+  height: clamp(0rem, 50vw, 100rem);
+  aspect-ratio: 1 / 1; /* Квадрат */
+
+  /* Внутренние отступы и скругления пропорциональны ширине экрана */
+  padding: 1vw;
+  border-radius: 1vw;
+
+  /* Вертикальный отступ */
+  margin: 2vh auto;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5vw;
+
+  /* Базовый масштаб шрифта */
+  font-size: calc(0.75rem + 0.5vw);
+}
+
+/* Заголовки внутри: масштабируются от font-size родителя */
+#compassBox h2,
+#compassBox h3 {
+  width: 80%;
+  height: 80%;
+  font-size: 1em;
+  margin: 0;
+  text-align: center;
+  object-fit: contain;
+}
+
+/* == Canvas внутри: занимает 60% блока, по центру == */
+#compassCanvas {
+  width: 80%;
+  height: 80%;
+  object-fit: contain;
+}
+
+
+
+
+/* Game Over */
+#gameOverScreen {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  padding: 3rem 4rem;
+  max-width: 80%;
+  border-radius: 1.25rem;
+  font-family: 'Orbitron', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.125rem;
+  text-align: center;
+  color: #fff;
+  box-shadow: 0 0.625rem 3.125rem rgba(0,0,0,0.8);
+  opacity: 0.9;
+  /*display: none;*/
+  animation: gameOverPop 0.6s ease-out forwards;
+}
+@keyframes gameOverPop {
+  to { transform: translate(-50%, -50%) scale(1); }
+}
+#gameOverScreen.win {
+  background: linear-gradient(
+    145deg,
+    rgba(50,120,50,0.9),
+    rgba(80,170,80,0.9)
+  );
+}
+#gameOverScreen.lose {
+  background: linear-gradient(
+    145deg,
+    rgba(150,30,30,0.9),
+    rgba(220,50,50,0.9)
+  );
+}
+#gameOverMessage { font-size: 3rem; margin-bottom: 1rem; }
+#menuButton {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  padding: 1rem 2rem;
+  border: 0.125rem solid #fff;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+#menuButton:hover {
+  background: rgba(255,255,255,0.2);
+  transform: scale(1.05);
+}
+#menuButton:active { transform: scale(0.95); }
+
+/* Modal */
+.modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 3000;
+}
+.modal.hidden { display: none; }
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+}
+.modal-content {
+  position: relative;
+  background: #2a2936;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 0.5rem 2rem rgba(0,0,0,0.8);
+  max-width: 20rem;
+  text-align: center;
+  color: #fff;
+}
+.modal-content p {
+  margin-bottom: 1.25rem;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1rem;
+}
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.modal-buttons button {
+  flex: 1;
+  padding: 0.75rem;
+  font-size: 0.875rem;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  background: #6a1b9a;
+  color: #fff;
+  transition: background 0.2s;
+}
+.modal-buttons button:hover { background: #4a148c; }
+#overwriteCancel {
+  background: #aaa;
+  color: #222;
+}
+#overwriteCancel:hover { background: #888; }
+
+
+/* ——— блок выравниваем вправо под заголовком ——— */
+#langBar{
+  display:flex;
+  justify-content:flex-end;
+  margin:0 0 1rem;          /* отступ вниз */
+}
+
+/* ——— сам выпадающий список ——— */
+#langSwitch{
+  /* отключаем нативные стрелки во всех браузерах */
+  appearance:none;
+  -webkit-appearance:none;
+  -moz-appearance:none;
+
+  /* «пилюля» со стеклянным эффектом */
+  padding:.45rem 1.1rem .45rem 1.1rem;
+  border-radius:9999px;
+  border:1px solid rgba(255,255,255,.35);
+  background:rgba(255,255,255,.08);
+  backdrop-filter:blur(6px);
+
+  /* текст */
+  font:600 .9rem/1 Montserrat,sans-serif;
+  color:#33f;
+  cursor:pointer;
+
+  /* плавные ховеры / фокус */
+  transition:background .2s,border-color .2s;
+}
+
+
+
+/* --- Слайдеры + подписи уровней ---------------------------*/
+.slider-group {
+  margin: 2vh 0;
+}
+/*
+.slider-group label {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  justify-content: center;
+}
+  */
+/* ▶ стройная трёх-колоночная сетка для подписи слайдера */
+.slider-group label {
+  display: grid;  
+  /* три колонки: заголовок, число, текстовый уровень */
+  grid-template-columns: 18ch 5ch 12ch;
+  /* по вертикали — по центру ячеек */
+  align-items: center;
+  /* по горизонтали — грид прижать к левому краю */
+  justify-content: start;
+  text-align: left;
+
+  column-gap: 1ch;
+  width: 100%;        /* чтобы контейнер span’ов растягивался на всю ширину родителя */
+}
+.valueText {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.levelText {
+  text-align: right;
+}
+
+
+.levelText {
+  text-align: right;
+}
+input[type="range"].slider {
+  width: 100%;
+  margin-top: 0.5em;
+}
+/*
+.levelText {
+  display: inline-block;
+  min-width: 15ch;             
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  margin-left: 0.25em;
+}
+.valueText{
+  display: inline-block;
+  min-width: 5ch;            
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  margin-left: 0.25em;
+}
+*/

@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CellFront: Modified Conway's Life</title>
+  <!-- Google fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* a tiny helper so the switcher always shows */
+    #langBar{
+      position:fixed;top:0.5rem;right:0.5rem;z-index:4000;
+      font-family:Montserrat,Arial,Helvetica,sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <!-- START MENU -->
+  <div id="startScreen">
+    <h1 data-en="CellFront" data-ru="CellFront"></h1>
+  <!-- ——— LANGUAGE SWITCHER ——— -->
+  <div id="langBar">
+    <select id="langSwitch" title="Language">
+      <option value="en">EN</option>
+      <option value="ru">RU</option>
+    </select>
+  </div>
+    <div class="slider-group">
+      <label for="difficultySlider">
+        <span class="i18n" data-en="Difficulty:" data-ru="Сложность:"></span>
+        <span id="difficultyValue" class="valueText">0%</span>
+        <span id="difficultyLevel" class="levelText"></span>
+      </label>
+      <input
+        type="range"
+        id="difficultySlider"
+        class="slider"
+        min="0" max="200" step="5"
+        value="0">
+    </div>
+    
+    <div class="slider-group">
+      <label for="breathSlider">
+        <span class="i18n" data-en="Resource Pulse:" data-ru="Волна ресурсов:"></span>
+        <span id="breathValue" class="valueText">0%</span>
+        <span id="breathLevel" class="levelText"></span>
+      </label>
+      <input
+        type="range"
+        id="breathSlider"
+        class="slider"
+        min="0" max="100" step="5"
+        value="0">
+    </div>
+    
+    <div class="slider-group">
+      <label for="reinforcementsSlider">
+        <span class="i18n" data-en="Allies support:" data-ru="Союзники:"></span>
+        <span id="reinforcementsValue" class="valueText">0%</span>
+        <span id="reinforcementsLevel" class="levelText"></span>
+      </label>
+      <input
+        type="range"
+        id="reinforcementsSlider"
+        class="slider"
+        min="0" max="100" step="5"
+        value="0">
+    </div>
+
+    <!-- Grid size options -->
+    <div class="grid-size-options">
+      <label>
+        <input type="radio" name="gridSize" value="12x18" checked>
+        <span class="option option-small">
+          12×18<br><small data-en="Small" data-ru="Малое"></small>
+        </span>
+      </label>
+      <label>
+        <input type="radio" name="gridSize" value="18x27">
+        <span class="option option-medium">
+          18×27<br><small data-en="Medium" data-ru="Среднее"></small>
+        </span>
+      </label>
+      <label>
+        <input type="radio" name="gridSize" value="24x36">
+        <span class="option option-large">
+          24×36<br><small data-en="Large" data-ru="Большое"></small>
+        </span>
+      </label>
+      <label>
+        <input type="radio" name="gridSize" value="30x45">
+        <span class="option option-xlarge">
+          30×45<br><small data-en="Huge" data-ru="Огромное"></small>
+        </span>
+      </label>
+    </div>
+    
+    <!-- Mode Buttons -->
+    <div id="modeButtons">
+      <button id="startBtn" data-en="New&nbsp;Game" data-ru="Новая&nbsp;игра"></button>
+      <button id="resumeButton" data-en="Resume" data-ru="Продолжить"></button>
+      <button id="howButton" data-en="?" data-ru="?"></button>
+    </div>
+    </div>
+  </div>
+
+  <!-- HELP OVERLAY -->
+  <div id="helpOverlay" hidden>
+    <div class="help-box">
+      <h2 data-en="How to Play" data-ru="Как играть"></h2>
+  
+      <!-- bullets теперь обычный текст, слова будут переноситься автоматически -->
+      <p class="i18n"
+      <!-- вместо <p>
+        <ul id="helpBullets" class="i18n"
+          data-en="
+            <li>Defeat the red AI — only green must remain.</li>
+            <li>A cell survives with 2-3 friends; an empty tile with exactly 3 allies spawns a new cell. Enemies count as −1.</li>
+            <li>Drag from your reserve to place greens; you can’t drop where enemies outnumber friends.</li>
+            <li>Bigger swarms grant faster income, but returns diminish as you grow.</li>
+            <li>Income ebbs and flows in waves; each later wave is slower — comebacks are real. Watch the compass.</li>
+            <li>As the battle drags on, reinforcements are rarer but arrive in greater numbers — hope never dies.</li>
+            <li>Keys 1-5 change game speed.</li>
+          "
+          data-ru="
+            <li>Уничтожьте красный ИИ — в живых должны остаться только зелёные.</li>
+            <li>Клетка живёт при 2-3 соседях; пустая ячейка с ровно 3 друзьями рождает новую. Враги считаются −1.</li>
+            <li>Тяните из резерва, чтобы ставить зелёных; нельзя ставить, если врагов больше друзей.</li>
+            <li>Чем больше рой, тем выше доход, но отдача снижается по мере роста.</li>
+            <li>Доход идёт волнами; каждая следующая волна медленнее — камбэк возможен. Следите за компасом.</li>
+            <li>Чем дольше битва, тем реже, но массовее подкрепления — надежда живёт.</li>
+            <li>Цифры 1-5 меняют скорость игры.</li>
+          ">
+        </ul>
+        
+     
+  
+      <button id="closeHelp" type="button" data-en="OK" data-ru="ОК"></button>
+    </div>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="gameScreen">
+    <div id="fieldWrapper">
+      <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <aside id="sidebar">
+      <section class="widget">
+        <h2 data-en="YOU" data-ru="ВЫ"></h2>
+        <div class="stat" id="playerOnField">0</div>
+        <div class="stat"><span id="playerReserve">0</span></div>
+      </section>
+      <section class="widget">
+        <h2 data-en="AI" data-ru="ИИ"></h2>
+        <div class="stat" id="enemyOnField">0</div>
+        <div class="stat"><span id="enemyReserve">0</span></div>
+      </section>
+
+      <section class="widget">
+        <h2 data-en="ALLIES" data-ru="СОЮЗНИКИ"></h2>
+        <div class="stat" id="timeReinforcements"> </div>
+        <div class="stat" id="sizeReinforcements"> </div>
+      </section>
+
+      <section class="widget">
+        <h2><span class="i18n" data-en="Difficulty:" data-ru="Сложность:"></span> <span class="sub" id="difficultyDisplay">50%</span></h2>
+      </section>
+      <section class="widget">
+        <div id="compass">
+          <h3 class="i18n" data-en="Resource Wave" data-ru="Пульс ресурсов"></h3>
+          <canvas id="compassCanvas"></canvas>
+        </div>
+      </section>
+
+      <section class="widget">
+        <div class="speed-controls">
+          <button data-speed="0"><i class="material-icons">pause</i></button>
+          <button data-speed="1"><i class="material-icons">play_arrow</i></button>
+          <button data-speed="2"><i class="material-icons">fast_forward</i></button>
+          <button data-speed="4"><i class="material-icons">speed</i></button>
+          <button data-speed="10"><i class="material-icons">rocket_launch</i></button>
+        </div>
+      </section>
+
+      <!-- Time + Sound + Exit -->
+      <section class="widget sound-widget">
+        <div class="sub"><span id="gameTime">00:00:00</span></div>
+        <input type="checkbox" id="soundToggle" class="sound-toggle" checked>
+        <label for="soundToggle" class="icon-btn" title="Sound on/off"><i class="material-icons" aria-hidden="true"></i></label>
+        <button id="exitMenu" class="icon-btn" title="Exit to menu"><i class="material-icons">exit_to_app</i></button>
+      </section>
+    </aside>
+  </div>
+
+  <!-- GAME OVER -->
+  <div id="gameOverScreen" hidden>
+    <h1 id="gameOverMessage" data-en="YOU WIN" data-ru="ВЫ ПОБЕДИЛИ"></h1>
+    <button id="menuButton" data-en="Go to Menu" data-ru="В меню"></button>
+  </div>
+
+  <!-- OVERWRITE CONFIRMATION -->
+  <div id="overwriteModal" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+      <p class="i18n" data-en="A saved game exists.&nbsp;Overwrite&nbsp;it?" data-ru="Есть сохранение. Перезаписать?"></p>
+      <div class="modal-buttons">
+        <button id="overwriteConfirm" data-en="Yes" data-ru="Да"></button>
+        <button id="overwriteCancel" data-en="No" data-ru="Нет"></button>
+      </div>
+    </div>
+  </div>
+  
+  <script id="i18n" type="application/json">
+    {
+      "en": {
+        "startScreen": {
+            "title": "CELLFRONT",
+            "startBtn": "Start",
+            "resumeBtn": "Resume",
+            "howBtn": "How to Play"
+          },
+        "sliderLevels": {
+          "difficultySlider": [
+            [0,   0,   "Idle"],
+            [1,  25,  "Training"],
+            [26, 50,  "Easy"],
+            [51, 75,  "Normal"],
+            [76,100, "Hard"],
+            [101,125,"Savage"],
+            [126,150,"Brutal"],
+            [151,175,"Sadistic"],
+            [176,200,"Nightmare"]
+          ],
+          "breathSlider": [
+            [0,  20,  "Calm"],
+            [20, 50,  "Mild"],
+            [50, 75,  "Moderate"],
+            [80,100,  "Strong"]
+          ],
+          "reinforcementsSlider": [
+            [0,   1,   "None"],
+            [1,  20,   "Sparse"],
+            [21, 50,   "Moderate"],
+            [51, 80,   "Strong"],
+            [81,100,   "Powerful"]
+          ]
+        },
+        "sidebarText": {
+          "Fld": "Fld:",
+          "Ally": "Ally:",
+          "Res": "Res:",
+          "You": "YOU",
+          "Ai": "AI",
+          "avgTime": "Avg. Time ≈ ",
+          "gameOverWin": "YOU WIN",
+          "gameOverLose": "YOU LOSE"
+        }
+      },
+      "ru": {
+        "startScreen": {
+            "title": "Кошмар",
+            "startBtn": "Начать",
+            "resumeBtn": "Продолжить",
+            "howBtn": "Как играть"
+          },
+        "sliderLevels": {
+          "difficultySlider": [
+            [0,   0,  "Покой"],
+            [1,  25,  "Тренировка"],
+            [26, 50,  "Лёгкая"],
+            [51, 75,  "Нормальная"],
+            [76,100, "Сложная"],
+            [101,125,"Жестокая"],
+            [126,150,"Брутальная"],
+            [151,175,"Садистская"],
+            [176,200,"Кошмар"]
+          ],
+          "breathSlider": [
+            [0,  20,  "Штиль"],
+            [20, 50,  "Лёгкая"],
+            [50, 75,  "Умеренная"],
+            [80,100, "Шквал"]
+          ],
+          "reinforcementsSlider": [
+            [0,   1,   "Нет"],
+            [1,  20,   "Редкие"],
+            [21, 50,   "Средние"],
+            [51, 80,   "Сильные"],
+            [81,100,   "Могущественные"]
+          ]
+        },
+        "sidebarText": {
+          "Fld": "Поле",
+          "Ally": "Союзн",
+          "Res": "Рез:",
+          "You": "ВЫ",
+          "Ai": "ИИ",
+          "avgTime": "Ср. время ≈ ",
+          "gameOverWin": "ПОБЕДА",
+          "gameOverLose": "ПОРАЖЕНИЕ"
+        }
+      }
+    }
+    </script>
+    
+  <!-- ——— MAIN ENTRY POINT (unchanged) ——— -->
+  <script type="module">
+    import { Renderer } from './renderer.js';
+    new Renderer();
+  </script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const i18nEls  = Array.from(document.querySelectorAll('[data-en]'));
+    const sliderIds = ['difficultySlider', 'breathSlider', 'reinforcementsSlider'];
+
+    function refreshSliders() {
+      sliderIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.dispatchEvent(new Event('input'));
+      });
+    }
+
+// --- UPDATED ---
+function setLang(lang = 'en') {
+      document.documentElement.lang = lang;
+      localStorage.lang = lang;
+
+      // 1. Обновляем статические надписи (data-en / data-ru)
+      i18nEls.forEach(el => {
+        const text = el.dataset[lang];
+        if (text === undefined) return;
+
+        // Для input‑полей меняем placeholder, для всего остального — HTML
+        if ('placeholder' in el && el.tagName === 'INPUT') {
+          el.placeholder = text;
+        } else {
+          el.innerHTML = text;
+        }
+      });
+
+      // 2. Подсловарь динамических переводов
+      const dict = JSON.parse(document.getElementById('i18n').textContent)[lang];
+
+      // 3. Однократное событие для скриптов
+      document.dispatchEvent(
+        new CustomEvent('langChanged', { detail: { lang, dict } })
+      );
+
+      // 4. Обновляем уровни слайдеров
+      refreshSliders();
+    }
+
+
+    // Инициализация: берём из localStorage или по языку браузера
+    const initialLang = localStorage.lang ||
+      (navigator.language && navigator.language.startsWith('ru') ? 'ru' : 'en');
+    document.getElementById('langSwitch').value = initialLang;
+    setLang(initialLang);
+
+    // Обработчик переключателя
+    document.getElementById('langSwitch')
+      .addEventListener('change', e => setLang(e.target.value));
+  });
+  </script>
+
+</body>
+</html>
